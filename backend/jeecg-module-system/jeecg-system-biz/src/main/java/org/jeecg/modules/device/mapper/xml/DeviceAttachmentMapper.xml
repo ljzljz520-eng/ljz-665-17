@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.device.mapper.DeviceAttachmentMapper">
+
+    <!-- 查询设备附件列表，关联用户表带出上传人真实姓名 -->
+    <select id="queryByDeviceId" resultType="org.jeecg.modules.device.entity.DeviceAttachment">
+        SELECT
+            a.id,
+            a.device_id      AS deviceId,
+            a.attachment_type AS attachmentType,
+            a.file_name      AS fileName,
+            a.file_path      AS filePath,
+            a.file_size      AS fileSize,
+            a.create_by      AS createBy,
+            a.create_time    AS createTime,
+            a.update_by      AS updateBy,
+            a.update_time    AS updateTime,
+            CASE WHEN u.realname IS NOT NULL AND u.realname &lt;&gt; '' THEN u.realname ELSE a.create_by END AS uploadByName
+        FROM device_attachment a
+        LEFT JOIN sys_user u ON u.username = a.create_by
+        WHERE a.device_id = #{deviceId}
+        ORDER BY a.create_time DESC
+    </select>
+
+</mapper>
