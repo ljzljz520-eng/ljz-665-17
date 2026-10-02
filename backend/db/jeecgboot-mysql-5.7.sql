@@ -10328,6 +10328,76 @@ INSERT INTO `test_shoptype_tree` VALUES ('1923190583678107649', 'admin', '2025-0
 INSERT INTO `test_shoptype_tree` VALUES ('1923190611448594433', 'admin', '2025-05-16 09:35:47', NULL, NULL, 'A01', '苹果', NULL, '1923190583678107649', '0');
 
 -- ----------------------------
+-- Table structure for biz_device（设备档案）
+-- ----------------------------
+DROP TABLE IF EXISTS `biz_device`;
+CREATE TABLE `biz_device`  (
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
+  `create_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新人',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `device_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备编号',
+  `device_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备名称',
+  `device_model` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备型号',
+  `manufacturer` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '生产厂商',
+  `location` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '安装位置',
+  `use_date` datetime NULL DEFAULT NULL COMMENT '启用日期',
+  `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备状态（1正常 0停用）',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_biz_device_code`(`device_code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '设备档案表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for biz_device_file（设备附件：照片/说明书/维保合同）
+-- 与设备档案绑定；删除设备时由应用在同一事务内级联清理，避免孤儿记录
+-- ----------------------------
+DROP TABLE IF EXISTS `biz_device_file`;
+CREATE TABLE `biz_device_file`  (
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
+  `device_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '所属设备ID',
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '附件名称（原始文件名）',
+  `file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件存储相对路径',
+  `file_size` bigint(20) NULL DEFAULT NULL COMMENT '文件大小（字节）',
+  `file_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件类型（扩展名）',
+  `category` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'other' COMMENT '附件分类（photo照片/manual说明书/contract维保合同/other其他）',
+  `create_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '上传人账号',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '上传时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_biz_device_file_device`(`device_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '设备附件表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_dict（设备状态字典）
+-- ----------------------------
+INSERT INTO `sys_dict` VALUES ('c1d2e3f405162738495a6b7c8d9e0f12', '设备状态', 'device_status', '设备档案状态：1正常 0停用', 0, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, NULL);
+INSERT INTO `sys_dict_item` VALUES ('c1d2e3f405162738495a6b7c8d9e0f13', 'c1d2e3f405162738495a6b7c8d9e0f12', '正常', '1', 'green', NULL, 1, 1, 'admin', '2026-10-02 10:00:00', NULL, NULL);
+INSERT INTO `sys_dict_item` VALUES ('c1d2e3f405162738495a6b7c8d9e0f14', 'c1d2e3f405162738495a6b7c8d9e0f12', '停用', '0', 'red', NULL, 2, 1, 'admin', '2026-10-02 10:00:00', NULL, NULL);
+
+-- ----------------------------
+-- Records of sys_permission（设备档案菜单）
+-- ----------------------------
+INSERT INTO `sys_permission` VALUES ('a1b2c3d4e5f60718293a4b5c6d7e8f90', '', '设备管理', '/device', 'layouts/RouteView', 1, NULL, NULL, 0, NULL, NULL, 5.00, 0, 'ant-design:hdd-outlined', 0, 0, 0, 0, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, NULL, 0);
+INSERT INTO `sys_permission` VALUES ('a1b2c3d4e5f60718293a4b5c6d7e8f91', 'a1b2c3d4e5f60718293a4b5c6d7e8f90', '设备档案', '/device/DeviceList', 'device/DeviceList', 1, NULL, NULL, 1, NULL, '1', 1.00, 0, 'ant-design:database-outlined', 1, 0, 0, 0, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` VALUES ('a1b2c3d4e5f60718293a4b5c6d7e8f92', 'a1b2c3d4e5f60718293a4b5c6d7e8f91', '新增', '', '', 1, NULL, NULL, 2, 'device:device:add', '1', 1.00, 0, NULL, 1, 0, 0, NULL, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` VALUES ('a1b2c3d4e5f60718293a4b5c6d7e8f93', 'a1b2c3d4e5f60718293a4b5c6d7e8f91', '编辑', '', '', 1, NULL, NULL, 2, 'device:device:edit', '1', 2.00, 0, NULL, 1, 0, 0, NULL, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` VALUES ('a1b2c3d4e5f60718293a4b5c6d7e8f94', 'a1b2c3d4e5f60718293a4b5c6d7e8f91', '删除', '', '', 1, NULL, NULL, 2, 'device:device:delete', '1', 3.00, 0, NULL, 1, 0, 0, NULL, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` VALUES ('a1b2c3d4e5f60718293a4b5c6d7e8f95', 'a1b2c3d4e5f60718293a4b5c6d7e8f91', '附件上传', '', '', 1, NULL, NULL, 2, 'device:file:upload', '1', 4.00, 0, NULL, 1, 0, 0, NULL, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` VALUES ('a1b2c3d4e5f60718293a4b5c6d7e8f96', 'a1b2c3d4e5f60718293a4b5c6d7e8f91', '附件删除', '', '', 1, NULL, NULL, 2, 'device:file:delete', '1', 5.00, 0, NULL, 1, 0, 0, NULL, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
+
+-- ----------------------------
+-- Records of sys_role_permission（授予管理员角色）
+-- ----------------------------
+INSERT INTO `sys_role_permission` VALUES ('b1b2c3d4e5f60718293a4b5c6d7e8f90', 'f6817f48af4fb3af11b9e8bf182f618b', 'a1b2c3d4e5f60718293a4b5c6d7e8f90', NULL, NULL, NULL);
+INSERT INTO `sys_role_permission` VALUES ('b1b2c3d4e5f60718293a4b5c6d7e8f91', 'f6817f48af4fb3af11b9e8bf182f618b', 'a1b2c3d4e5f60718293a4b5c6d7e8f91', NULL, NULL, NULL);
+INSERT INTO `sys_role_permission` VALUES ('b1b2c3d4e5f60718293a4b5c6d7e8f92', 'f6817f48af4fb3af11b9e8bf182f618b', 'a1b2c3d4e5f60718293a4b5c6d7e8f92', NULL, NULL, NULL);
+INSERT INTO `sys_role_permission` VALUES ('b1b2c3d4e5f60718293a4b5c6d7e8f93', 'f6817f48af4fb3af11b9e8bf182f618b', 'a1b2c3d4e5f60718293a4b5c6d7e8f93', NULL, NULL, NULL);
+INSERT INTO `sys_role_permission` VALUES ('b1b2c3d4e5f60718293a4b5c6d7e8f94', 'f6817f48af4fb3af11b9e8bf182f618b', 'a1b2c3d4e5f60718293a4b5c6d7e8f94', NULL, NULL, NULL);
+INSERT INTO `sys_role_permission` VALUES ('b1b2c3d4e5f60718293a4b5c6d7e8f95', 'f6817f48af4fb3af11b9e8bf182f618b', 'a1b2c3d4e5f60718293a4b5c6d7e8f95', NULL, NULL, NULL);
+INSERT INTO `sys_role_permission` VALUES ('b1b2c3d4e5f60718293a4b5c6d7e8f96', 'f6817f48af4fb3af11b9e8bf182f618b', 'a1b2c3d4e5f60718293a4b5c6d7e8f96', NULL, NULL, NULL);
+
+-- ----------------------------
 -- Procedure structure for insert_200_records
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `insert_200_records`;
