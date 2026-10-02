@@ -10347,3 +10347,47 @@ END
 delimiter ;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- 设备档案与附件（设备照片 / 说明书 / 维保合同）
+-- ----------------------------
+DROP TABLE IF EXISTS `device_info`;
+CREATE TABLE `device_info`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '主键id',
+  `device_code` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '设备编号',
+  `device_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '设备名称',
+  `device_model` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '设备型号',
+  `manufacturer` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '生产厂家',
+  `serial_number` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '出厂序列号',
+  `location` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '安装位置',
+  `use_date` date NULL COMMENT '启用日期',
+  `warranty_date` date NULL COMMENT '质保到期日',
+  `status` int(11) NULL DEFAULT 1 COMMENT '设备状态（1正常 2维修中 3停用）',
+  `remark` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `create_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '创建人',
+  `create_time` datetime NULL COMMENT '创建时间',
+  `update_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '更新人',
+  `update_time` datetime NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_device_code`(`device_code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '设备档案' ROW_FORMAT = DYNAMIC;
+
+DROP TABLE IF EXISTS `device_attachment`;
+CREATE TABLE `device_attachment`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '主键id',
+  `device_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '设备档案ID',
+  `attachment_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'other' COMMENT '附件类型（photo设备照片/manual说明书/contract维保合同/other其他）',
+  `file_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '文件名称',
+  `file_path` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '文件存储路径',
+  `file_size` bigint(20) NULL DEFAULT 0 COMMENT '文件大小（字节）',
+  `create_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '上传人',
+  `create_time` datetime NULL COMMENT '上传时间',
+  `update_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '更新人',
+  `update_time` datetime NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_device_attachment_device`(`device_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '设备附件' ROW_FORMAT = DYNAMIC;
+
+-- 菜单：设备管理（一级）/ 设备档案（子菜单）
+INSERT INTO `sys_permission` VALUES ('1900000000000000001', NULL, '设备管理', '/device', NULL, 1, NULL, NULL, 0, NULL, '1', 5.00, 0, 'ant-design:hdd-outlined', 0, 0, 0, 0, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` VALUES ('1900000000000000002', '1900000000000000001', '设备档案', '/device/deviceInfo', 'device/deviceInfo/index', 1, 'device-deviceInfo', NULL, 1, NULL, '1', 1.00, 0, 'ant-design:profile-outlined', 1, 1, 0, 0, NULL, 'admin', '2026-10-02 10:00:00', NULL, NULL, 0, 0, '1', 0);
